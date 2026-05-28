@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toets — Helikopter & Vliegtheorie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b1220;
+    --bg-2: #11192b;
+    --panel: #151f36;
+    --ink: #e8eef8;
+    --muted: #8ea0bf;
+    --accent: #ffb800;
+    --accent-2: #4cc9f0;
+    --good: #4ade80;
+    --bad: #f87171;
+    --line: #243149;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(76,201,240,0.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(255,184,0,0.08), transparent 60%),
+      var(--bg);
+    color: var(--ink);
+    font-family: 'Manrope', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* Subtiele grid achtergrond als 'cockpit' sfeer */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  header.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .brand {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: lowercase;
+  }
+  .brand span { color: var(--muted); }
+
+  .meta {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  h1.title {
+    font-family: 'Major Mono Display', monospace;
+    font-size: clamp(28px, 5vw, 44px);
+    margin: 0 0 8px;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  h1.title em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    margin-bottom: 32px;
+    max-width: 600px;
+  }
+
+  /* Startscherm */
+  .start-card {
+    background: linear-gradient(180deg, var(--panel), var(--bg-2));
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 36px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin: 24px 0 32px;
+  }
+  .info-tile {
+    background: rgba(76,201,240,0.06);
+    border: 1px solid rgba(76,201,240,0.18);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .info-tile .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .info-tile .val {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 20px;
+    color: var(--accent-2);
+  }
+
+  .name-input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 20px;
+    transition: border-color .2s, background .2s;
+  }
+  .name-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(255,184,0,0.05);
+  }
+
+  .btn {
+    background: var(--accent);
+    color: #0b1220;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 24px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s, background .2s;
+    text-transform: uppercase;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(255,184,0,0.25);
+  }
+  .btn:active { transform: translateY(0); }
+  .btn.secondary {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .btn.secondary:hover {
+    background: rgba(255,255,255,0.04);
+    box-shadow: none;
+  }
+
+  /* Vragen */
+  .quiz {
+    display: none;
+  }
+  .quiz.active { display: block; }
+
+  .progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    width: 0%;
+    transition: width .4s ease;
+  }
+  .progress-text {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .q-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 32px;
+    margin-bottom: 24px;
+    animation: slideIn .4s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-number {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .q-section {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-left: 12px;
+  }
+
+  .q-text {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin: 8px 0 24px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .option {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+  }
+  .option:hover {
+    border-color: var(--accent-2);
+    background: rgba(76,201,240,0.06);
+  }
+  .option.selected {
+    border-color: var(--accent);
+    background: rgba(255,184,0,0.08);
+  }
+  .option .marker {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    display: grid;
+    place-items: center;
+    font-family: 'Major Mono Display', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .option.selected .marker {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #0b1220;
+  }
+  .option.correct {
+    border-color: var(--good);
+    background: rgba(74,222,128,0.1);
+  }
+  .option.correct .marker {
+    border-color: var(--good);
+    background: var(--good);
+    color: #0b1220;
+  }
+  .option.wrong {
+    border-color: var(--bad);
+    background: rgba(248,113,113,0.1);
+  }
+  .option.wrong .marker {
+    border-color: var(--bad);
+    background: var(--bad);
+    color: #0b1220;
+  }
+
+  .text-input {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 15px;
+    transition: border-color .2s;
+  }
+  .text-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .text-input.correct {
+    border-color: var(--good);
+    background: rgba(74,222,128,0.08);
+  }
+  .text-input.wrong {
+    border-color: var(--bad);
+    background: rgba(248,113,113,0.08);
+  }
+
+  .feedback {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: none;
+  }
+  .feedback.show { display: block; animation: slideIn .3s ease; }
+  .feedback.good {
+    background: rgba(74,222,128,0.1);
+    border-left: 3px solid var(--good);
+    color: var(--good);
+  }
+  .feedback.bad {
+    background: rgba(248,113,113,0.1);
+    border-left: 3px solid var(--bad);
+    color: var(--bad);
+  }
+  .feedback .correct-answer {
+    color: var(--muted);
+    margin-top: 6px;
+    font-size: 13px;
+  }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  /* Eindscherm */
+  .results {
+    display: none;
+    text-align: center;
+  }
+  .results.active { display: block; }
+
+  .score-circle {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+  .score-circle svg {
+    transform: rotate(-90deg);
+  }
+  .score-circle .score-text {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: 'Major Mono Display', monospace;
+  }
+  .score-text .pct {
+    font-size: 48px;
+    color: var(--accent);
+  }
+  .score-text .lbl {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    margin-top: 4px;
+  }
+
+  .results h2 {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 28px;
+    margin: 0 0 8px;
+  }
+  .results .summary {
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  .breakdown {
+    text-align: left;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .breakdown h3 {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin: 0 0 16px;
+    text-transform: uppercase;
+  }
+  .breakdown-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .breakdown-item:last-child { border-bottom: none; }
+  .breakdown-item .icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 1px;
+  }
+  .icon.ok { background: var(--good); color: #0b1220; }
+  .icon.no { background: var(--bad); color: #0b1220; }
+  .breakdown-item .q { flex: 1; }
+  .breakdown-item .ua {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 600px) {
+    .q-card { padding: 22px; }
+    .q-text { font-size: 16px; }
+    header.top { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">springbank <span>// vliegschool</span></div>
+    <div class="meta" id="dateMeta"></div>
+  </header>
+
+  <!-- STARTSCHERM -->
+  <section id="start" class="start-card">
+    <h1 class="title">Toets <em>Helikopter</em> & Vliegtheorie</h1>
+    <p class="subtitle">
+      Een willekeurige selectie uit de stof. Elke poging kan andere vragen bevatten.
+      Lees rustig, kies of vul je antwoord in, en bekijk aan het eind je score.
+    </p>
+
+    <div class="info-grid">
+      <div class="info-tile">
+        <div class="label">Aantal vragen</div>
+        <div class="val" id="numQuestions">10</div>
+      </div>
+      <div class="info-tile">
+        <div class="label">Onderdelen</div>
+        <div class="val">4</div>
+      </div>
+      <div class="info-tile">
+        <div class="label">Tijd</div>
+        <div class="val">~10 min</div>
+      </div>
+    </div>
+
+    <input type="text" id="studentName" class="name-input" placeholder="Vul je naam in (optioneel)">
+
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <button class="btn" onclick="startQuiz()">Start toets →</button>
+      <button class="btn secondary" onclick="changeCount()" id="countBtn">5 vragen / 10 vragen</button>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="quiz">
+    <div class="progress">
+      <div class="progress-text" id="progressText">01 / 10</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div id="questionContainer"></div>
+
+    <div class="nav">
+      <button class="btn secondary" onclick="restart()">↺ Stop</button>
+      <button class="btn" id="nextBtn" onclick="nextQuestion()" disabled>Controleer</button>
+    </div>
+  </section>
+
+  <!-- RESULTAAT -->
+  <section id="results" class="results">
+    <div class="score-circle">
+      <svg width="200" height="200" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="88" fill="none" stroke="#243149" stroke-width="12"/>
+        <circle id="scoreRing" cx="100" cy="100" r="88" fill="none"
+                stroke="url(#grad)" stroke-width="12" stroke-linecap="round"
+                stroke-dasharray="553" stroke-dashoffset="553"
+                style="transition: stroke-dashoffset 1s ease;"/>
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffb800"/>
+            <stop offset="100%" stop-color="#4cc9f0"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="score-text">
+        <div>
+          <div class="pct" id="scorePct">0%</div>
+          <div class="lbl">SCORE</div>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="resultTitle">Goed gedaan!</h2>
+    <p class="summary" id="resultSummary">Je hebt 0 van de 0 vragen goed.</p>
+
+    <div class="breakdown">
+      <h3>Overzicht</h3>
+      <div id="breakdownList"></div>
+    </div>
+
+    <button class="btn" onclick="restart()">Opnieuw proberen</button>
+  </section>
+</div>
+
+<script>
+/* =========================================================================
+   VRAGENBANK
+   Alle vragen zijn rechtstreeks gebaseerd op de 4 theorie-afbeeldingen
+   van Springbank Vliegschool (Helikopter Theorie, Algemene Informatie /
+   cockpit instrumenten, Opstijgen Vliegen en Dalen, Vlieg Procedure).
+   ========================================================================= */
+const QUESTION_BANK = [
+  // ----- HELIKOPTER THEORIE -----
+  {
+    section: "Helikopter",
+    type: "mc",
+    q: "Wat is de functie van de Main Rotor?",
+    options: [
+      "Hiermee kan de helikopter van links naar rechts bewegen",
+      "Zorgt voor rotatie van de bladen",
+      "Gestel waarop de helikopter kan landen",
+      "Ruimte waar de piloot en copiloot zitten"
+    ],
+    correct: 1
+  },
+  {
+    section: "Helikopter",
+    type: "mc",
+    q: "Wat doen de Blades?",
+    options: [
+      "Ze zitten vast aan de rotor en zorgen voor een opwaartse kracht",
+      "Ze zorgen voor de horizontale snelheid",
+      "Ze maken de helikopter zichtbaar in de lucht",
+      "Ze stabiliseren de landing"
+    ],
+    correct: 0
+  },
+  {
+    section: "Helikopter",
+    type: "mc",
+    q: "Wat is de functie van de Tail Rotor?",
+    options: [
+      "Geeft het toestel extra hoogte",
+      "Zorgt voor opwaartse kracht",
+      "Hiermee kan een helikopter van links naar rechts bewegen",
+      "Beschermt de staart bij landing"
+    ],
+    correct: 2
+  },
+  {
+    section: "Helikopter",
+    type: "mc",
+    q: "Wat is een Landing Skid?",
+    options: [
+      "Een instrument in de cockpit",
+      "Een type rotorblad",
+      "De landingsbaan voor helikopters",
+      "Gestel waarop de helikopter kan landen"
+    ],
+    correct: 3
+  },
+  {
+    section: "Helikopter",
+    type: "mc",
+    q: "Wat bevindt zich in de Cockpit?",
+    options: [
+      "De motor",
+      "De piloot en de copiloot",
+      "Alleen de passagiers",
+      "De brandstoftank"
+    ],
+    correct: 1
+  },
+  {
+    section: "Helikopter",
+    type: "fill",
+    q: "Vul aan: De ____ zorgt voor de rotatie van de bladen.",
+    answers: ["main rotor", "mainrotor"]
+  },
+
+  // ----- COCKPIT INSTRUMENTEN -----
+  {
+    section: "Instrumenten",
+    type: "mc",
+    q: "Welk instrument toont je snelheid in knots?",
+    options: [
+      "Attitude indicator",
+      "Altimeter",
+      "Airspeed indicator",
+      "Heading indicator"
+    ],
+    correct: 2
+  },
+  {
+    section: "Instrumenten",
+    type: "mc",
+    q: "Wat toont de Attitude indicator?",
+    options: [
+      "Je hoogte in feet",
+      "Je pitch level (met hoeveel graden je neus hangt)",
+      "Op welke koers je vliegt",
+      "Je verticale snelheid"
+    ],
+    correct: 1
+  },
+  {
+    section: "Instrumenten",
+    type: "mc",
+    q: "Welk instrument toont je hoogte in feet?",
+    options: [
+      "Vertical Speed Indicator",
+      "Heading Indicator",
+      "Altimeter",
+      "Turn Indicator"
+    ],
+    correct: 2
+  },
+  {
+    section: "Instrumenten",
+    type: "mc",
+    q: "Wat geeft de Turn Indicator aan?",
+    options: [
+      "Of je scheef of recht hangt",
+      "Hoe snel je vliegt",
+      "Op welke hoogte je zit",
+      "Hoeveel brandstof je hebt"
+    ],
+    correct: 0
+  },
+  {
+    section: "Instrumenten",
+    type: "mc",
+    q: "Wat toont de Heading Indicator?",
+    options: [
+      "Je verticale snelheid",
+      "Je pitch level",
+      "Op welke koers je vliegt",
+      "Je snelheid in knots"
+    ],
+    correct: 2
+  },
+  {
+    section: "Instrumenten",
+    type: "mc",
+    q: "Wat toont de Vertical Speed Indicator?",
+    options: [
+      "Je horizontale snelheid",
+      "Je verticale snelheid (stijgen / dalen snelheid)",
+      "Je koers",
+      "Je hoogte in meters"
+    ],
+    correct: 1
+  },
+  {
+    section: "Instrumenten",
+    type: "mc",
+    q: "Hoeveel km/h is 1 knot?",
+    options: ["1,000 km/h", "1,609 km/h", "1,852 km/h", "3,280 km/h"],
+    correct: 2
+  },
+  {
+    section: "Instrumenten",
+    type: "mc",
+    q: "Hoeveel feet is 1 meter?",
+    options: ["1,852 ft", "2,54 ft", "3,28 ft", "10 ft"],
+    correct: 2
+  },
+  {
+    section: "Instrumenten",
+    type: "fill",
+    q: "Vul aan: De ____ indicator toont je snelheid in knots.",
+    answers: ["airspeed"]
+  },
+
+  // ----- OPSTIJGEN, VLIEGEN EN DALEN -----
+  {
+    section: "Vluchtfasen",
+    type: "mc",
+    q: "Wat doe je bij het opstijgen om verticale snelheid te maken?",
+    options: [
+      "Je trekt de stick naar achteren",
+      "Je geeft throttle bij",
+      "Je duwt de stick naar voren",
+      "Je vermindert de throttle"
+    ],
+    correct: 1
+  },
+  {
+    section: "Vluchtfasen",
+    type: "mc",
+    q: "Hoe maak je horizontale snelheid tijdens het opstijgen?",
+    options: [
+      "Stick naar voren duwen",
+      "Stick naar achteren trekken",
+      "Throttle verminderen",
+      "Stick naar links duwen"
+    ],
+    correct: 0
+  },
+  {
+    section: "Vluchtfasen",
+    type: "mc",
+    q: "Wat moet je doen tijdens de vliegperiode?",
+    options: [
+      "Continue blijven stijgen",
+      "Throttle volledig uitzetten",
+      "Op de gewenste hoogte blijven en de stick zo positioneren dat je geen negatieve verticale snelheid hebt",
+      "Constant dalen voor brandstofbesparing"
+    ],
+    correct: 2
+  },
+  {
+    section: "Vluchtfasen",
+    type: "mc",
+    q: "Wat doe je als eerste om te dalen?",
+    options: [
+      "De throttle verhogen",
+      "De stick naar achteren trekken",
+      "De stick naar voren duwen",
+      "Direct de landing skids uitklappen"
+    ],
+    correct: 1
+  },
+  {
+    section: "Vluchtfasen",
+    type: "mc",
+    q: "Net voordat je boven je landingslocatie hangt, wat doe je dan?",
+    options: [
+      "Je geeft volle throttle om weer op te stijgen",
+      "Je geeft een beetje gas bij om je snelheid te remmen",
+      "Je trekt de stick scherp naar achteren",
+      "Je zet de motor uit"
+    ],
+    correct: 1
+  },
+  {
+    section: "Vluchtfasen",
+    type: "fill",
+    q: "Vul aan: Bij het dalen trek je de stick naar ____ waardoor je horizontale snelheid mindert.",
+    answers: ["achteren"]
+  },
+
+  // ----- VLIEG PROCEDURE -----
+  {
+    section: "Procedure",
+    type: "mc",
+    q: "Met welke snelheid taxi je over de lijnen richting de zijkant van de baan?",
+    options: ["10–20 km/u", "30–40 km/u", "60–80 km/u", "100 km/u"],
+    correct: 1
+  },
+  {
+    section: "Procedure",
+    type: "mc",
+    q: "Wanneer mag je de opstijgbaan op?",
+    options: [
+      "Altijd zodra je klaar bent",
+      "Pas als je hebt gecheckt dat deze niet gebruikt wordt of dat er een ander vliegtuig aankomt",
+      "Direct na het starten van de motor",
+      "Alleen op vooraf bepaalde tijden"
+    ],
+    correct: 1
+  },
+  {
+    section: "Procedure",
+    type: "mc",
+    q: "Bij welke snelheid mag je tijdens het opstijgen gaan roteren?",
+    options: ["Rond de 30 km/u", "Rond de 60 km/u", "Rond de 100 km/u", "Rond de 200 km/u"],
+    correct: 2
+  },
+  {
+    section: "Procedure",
+    type: "mc",
+    q: "Wat doe je tijdens het roteren bij het opstijgen?",
+    options: [
+      "Je duwt de knuppel naar voren",
+      "Je trekt de knuppel naar achteren waardoor de neus omhoog gaat",
+      "Je draait de knuppel naar links",
+      "Je laat de knuppel los"
+    ],
+    correct: 1
+  },
+  {
+    section: "Procedure",
+    type: "mc",
+    q: "Wat moet je niet vergeten in de stijg-periode na het opstijgen?",
+    options: [
+      "De ramen sluiten",
+      "De radio uitzetten",
+      "Je landings gear in te trekken",
+      "Direct te keren"
+    ],
+    correct: 2
+  },
+  {
+    section: "Procedure",
+    type: "mc",
+    q: "Wat is de cruising altitude?",
+    options: [
+      "De hoogte waarop je opstijgt",
+      "De hoogte waarop je gaat vliegen",
+      "De maximale hoogte van het vliegtuig",
+      "De hoogte van de landingsbaan"
+    ],
+    correct: 1
+  },
+  {
+    section: "Procedure",
+    type: "mc",
+    q: "Wat moet je tijdens de vliegperiode in een rechte lijn naar je bestemming doen?",
+    options: [
+      "Slapen",
+      "Te allen tijde alert blijven voor andere toestellen",
+      "De motor uitzetten",
+      "De landings gear uitklappen"
+    ],
+    correct: 1
+  },
+  {
+    section: "Procedure",
+    type: "mc",
+    q: "Hoe begin je het dalen voor de landing?",
+    options: [
+      "Op het laatste moment scherp duiken",
+      "Vroegtijdig dalen in een mooie boog voor de landingsbaan",
+      "In een steile spiraal",
+      "Pas boven de baan zelf"
+    ],
+    correct: 1
+  },
+  {
+    section: "Procedure",
+    type: "mc",
+    q: "Wat is de positie van je neus bij het neerzetten van de wielen?",
+    options: [
+      "Sterk omlaag gericht",
+      "Recht naar voren",
+      "Een beetje omhoog leunen",
+      "Sterk naar links gedraaid"
+    ],
+    correct: 2
+  },
+  {
+    section: "Procedure",
+    type: "mc",
+    q: "Tussen wat zet je je vliegtuig aan de grond bij het landen?",
+    options: [
+      "Tussen de 2 witte balken",
+      "Tussen de gele lichten",
+      "Tussen twee andere vliegtuigen",
+      "Tussen de bomen langs de baan"
+    ],
+    correct: 0
+  },
+  {
+    section: "Procedure",
+    type: "fill",
+    q: "Vul aan: Tijdens taxiën rij je met ongeveer ____ km/u (formaat: getal-getal, bv. 30-40).",
+    answers: ["30-40", "30 40", "30/40"]
+  },
+];
+
+/* ========================================================================= */
+
+let state = {
+  questions: [],
+  current: 0,
+  score: 0,
+  answers: [], // { question, userAnswer, correct }
+  numToAsk: 10,
+};
+
+const $ = (id) => document.getElementById(id);
+
+// Datum
+const today = new Date();
+$('dateMeta').textContent = today.toLocaleDateString('nl-NL', {
+  day: '2-digit', month: 'short', year: 'numeric'
+}).toUpperCase();
+
+function changeCount() {
+  state.numToAsk = state.numToAsk === 10 ? 5 : (state.numToAsk === 5 ? 15 : 10);
+  $('numQuestions').textContent = state.numToAsk;
+  $('countBtn').textContent = `wissel naar ${state.numToAsk === 10 ? '5' : state.numToAsk === 5 ? '15' : '10'} vragen`;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  // Willekeurige selectie + per MC-vraag ook de antwoordopties shufflen
+  const shuffled = shuffle(QUESTION_BANK).slice(0, state.numToAsk);
+  state.questions = shuffled.map(q => {
+    if (q.type === 'mc') {
+      const indexed = q.options.map((opt, i) => ({ opt, isCorrect: i === q.correct }));
+      const sh = shuffle(indexed);
+      return {
+        ...q,
+        options: sh.map(x => x.opt),
+        correct: sh.findIndex(x => x.isCorrect),
+      };
+    }
+    return q;
+  });
+  state.current = 0;
+  state.score = 0;
+  state.answers = [];
+
+  $('start').style.display = 'none';
+  $('quiz').classList.add('active');
+  $('results').classList.remove('active');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = state.questions[state.current];
+  const n = state.current + 1;
+  const total = state.questions.length;
+
+  $('progressText').textContent = `${String(n).padStart(2,'0')} / ${String(total).padStart(2,'0')}`;
+  $('progressFill').style.width = `${(n / total) * 100}%`;
+
+  const c = $('questionContainer');
+  let html = `
+    <div class="q-card">
+      <div>
+        <span class="q-number">Vraag ${n}</span>
+        <span class="q-section">${q.section}</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+  `;
+
+  if (q.type === 'mc') {
+    html += `<div class="options">`;
+    q.options.forEach((opt, i) => {
+      const letter = String.fromCharCode(65 + i);
+      html += `
+        <div class="option" data-idx="${i}" onclick="selectOption(${i})">
+          <div class="marker">${letter}</div>
+          <div>${opt}</div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  } else if (q.type === 'fill') {
+    html += `<input type="text" class="text-input" id="fillInput" placeholder="Typ je antwoord..." autocomplete="off">`;
+  }
+
+  html += `<div class="feedback" id="feedback"></div></div>`;
+  c.innerHTML = html;
+
+  $('nextBtn').textContent = 'Controleer';
+  $('nextBtn').disabled = true;
+
+  // Listener voor fill-in
+  if (q.type === 'fill') {
+    const inp = $('fillInput');
+    inp.addEventListener('input', () => {
+      $('nextBtn').disabled = inp.value.trim().length === 0;
+    });
+    inp.focus();
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !$('nextBtn').disabled) nextQuestion();
+    });
+  }
+}
+
+let selectedIdx = null;
+function selectOption(i) {
+  // Niet meer wijzigen na controle
+  if ($('feedback').classList.contains('show')) return;
+  selectedIdx = i;
+  document.querySelectorAll('.option').forEach((el, idx) => {
+    el.classList.toggle('selected', idx === i);
+  });
+  $('nextBtn').disabled = false;
+}
+
+function nextQuestion() {
+  const q = state.questions[state.current];
+  const feedback = $('feedback');
+
+  // Als feedback nog niet getoond: controleer eerst
+  if (!feedback.classList.contains('show')) {
+    let isCorrect = false;
+    let userAnswer = '';
+
+    if (q.type === 'mc') {
+      userAnswer = q.options[selectedIdx];
+      isCorrect = selectedIdx === q.correct;
+      document.querySelectorAll('.option').forEach((el, idx) => {
+        el.style.pointerEvents = 'none';
+        if (idx === q.correct) el.classList.add('correct');
+        else if (idx === selectedIdx) el.classList.add('wrong');
+      });
+    } else if (q.type === 'fill') {
+      const val = $('fillInput').value.trim().toLowerCase();
+      userAnswer = $('fillInput').value.trim();
+      isCorrect = q.answers.some(a => a.toLowerCase() === val);
+      $('fillInput').classList.add(isCorrect ? 'correct' : 'wrong');
+      $('fillInput').disabled = true;
+    }
+
+    if (isCorrect) {
+      state.score++;
+      feedback.className = 'feedback show good';
+      feedback.innerHTML = `✓ Correct!`;
+    } else {
+      feedback.className = 'feedback show bad';
+      const ca = q.type === 'mc' ? q.options[q.correct] : q.answers[0];
+      feedback.innerHTML = `✗ Niet juist.<div class="correct-answer">Juiste antwoord: <strong>${ca}</strong></div>`;
+    }
+
+    state.answers.push({
+      question: q.q,
+      userAnswer: userAnswer || '(leeg)',
+      correctAnswer: q.type === 'mc' ? q.options[q.correct] : q.answers[0],
+      isCorrect,
+    });
+
+    selectedIdx = null;
+
+    if (state.current < state.questions.length - 1) {
+      $('nextBtn').textContent = 'Volgende vraag →';
+    } else {
+      $('nextBtn').textContent = 'Bekijk resultaat →';
+    }
+    return;
+  }
+
+  // Volgende vraag of resultaat
+  if (state.current < state.questions.length - 1) {
+    state.current++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  $('quiz').classList.remove('active');
+  $('results').classList.add('active');
+
+  const total = state.questions.length;
+  const pct = Math.round((state.score / total) * 100);
+
+  $('scorePct').textContent = `${pct}%`;
+  $('resultSummary').textContent = `Je hebt ${state.score} van de ${total} vragen goed.`;
+
+  // Cirkel
+  const circumference = 2 * Math.PI * 88;
+  const offset = circumference - (pct / 100) * circumference;
+  setTimeout(() => {
+    $('scoreRing').style.strokeDashoffset = offset;
+  }, 100);
+
+  // Titel naar gelang score
+  let title;
+  if (pct === 100) title = "Perfect — alles goed!";
+  else if (pct >= 80) title = "Sterk gevlogen.";
+  else if (pct >= 60) title = "Goed bezig — nog wat oefenen.";
+  else if (pct >= 40) title = "Nog ruimte voor verbetering.";
+  else title = "Tijd om de theorie nog eens door te nemen.";
+  $('resultTitle').textContent = title;
+
+  // Breakdown
+  const list = $('breakdownList');
+  list.innerHTML = state.answers.map((a, i) => `
+    <div class="breakdown-item">
+      <div class="icon ${a.isCorrect ? 'ok' : 'no'}">${a.isCorrect ? '✓' : '✗'}</div>
+      <div class="q">
+        <strong>${i + 1}.</strong> ${a.question}
+        ${!a.isCorrect ? `<div class="ua">Jouw antwoord: ${a.userAnswer} · Juist: ${a.correctAnswer}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function restart() {
+  $('quiz').classList.remove('active');
+  $('results').classList.remove('active');
+  $('start').style.display = 'block';
+  $('nextBtn').disabled = true;
+  selectedIdx = null;
+}
+</script>
+</body>
+</html>
